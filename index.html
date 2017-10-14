@@ -1,0 +1,169 @@
+<!doctype html>
+<html class="no-js" lang="ru">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Оплата</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js"></script>
+
+        <script>
+            setTimeout(function() {
+
+                function sanitizeKey(name) {
+                    var dirty = name.slice(0, 1);
+                    return dirty === '?' ? name.slice(1, name.length) : name;
+                }
+
+                function parsePaymentResult(urlParams) {
+                    var paymentResultSrt = urlParams.split('&')
+                            .map(function(item) {
+                                var params = item.split('=');
+                                return [ sanitizeKey(params[0]),  params[1] ];
+                            })
+                            .find(function(item) {
+                                return item[0] === 'payment_result';
+                            });
+                    return paymentResultSrt ? JSON.parse(decodeURI(paymentResultSrt[1])) : false;
+                }
+
+                // hidden spinner
+                document.getElementById('spinner').style.display = 'none';
+
+                var paymentResult = parsePaymentResult(window.location.search);
+
+                if (!paymentResult) {
+                    throw new Error('Payment result is not present in URL');
+                }
+
+                /*
+                 API:
+                 paymentResult: {
+                     "status": {
+                        "success": true,
+                        "message": ""
+                     },
+                     "receiver": "Печка",
+                     "amount": "754",
+                     "date": 1508023364,
+                     "payer": {
+                        "firstName": "Максим",
+                        "secondName": "Смагин",
+                        "thirdName": "Олегович"
+                     },
+                     "transactionNumber": 901290331245
+                 }
+                 */
+
+                console.log((
+                    paymentResult
+                ));
+
+
+                document.getElementById('fullPayerName').innerHTML = (
+                    paymentResult.payer.secondName + ' ' +
+                    paymentResult.payer.firstName + ' ' +
+                    paymentResult.payer.thirdName
+                );
+                document.getElementById('shortPayerName').innerText = (
+                    paymentResult.payer.firstName + ' ' +
+                    paymentResult.payer.secondName + ' '
+                );
+                document.getElementById('receiver').innerText = paymentResult.receiver;
+                document.getElementById('fullAmount').innerText = paymentResult.amount + ' руб.';
+                document.getElementById('shortAmount').innerText = paymentResult.amount + ' РУБ.';
+                document.getElementById('shortDate').innerText = moment.utc(paymentResult.date).format('DD.MM.YYYY');
+                document.getElementById('fullDate').innerText = moment.utc(paymentResult.date).format('DD.MM.YYYY, kk:mm:ss');
+                document.getElementById('transactionNumber').innerText = paymentResult.transactionNumber;
+
+            }, 500)
+        </script>
+    </head>
+    <body>
+        <div class="payment-result">
+            <div class="spinner-window" id="spinner">
+                <div class="spinner"></div>
+            </div>
+            <div class="info">
+                <div class="info__row">
+                    <div class="info__row__data">
+                        <div class="info__row__title-header">Получатель</div>
+                        <div class="info__row__content-header" id="receiver">...</div>
+                    </div>
+                </div>
+                <div class="info__row">
+                    <div class="info__row__icon">
+                        <img src="./img/wallet-svg.svg"/>
+                    </div>
+                    <div class="info__row__data">
+                        <div class="info__row__title">Сумма:</div>
+                        <div class="info__row__content" id="shortAmount">...</div>
+                    </div>
+                </div>
+                <div class="info__row">
+                    <div class="info__row__icon">
+                        <img src="./img/calendar-svg.svg"/>
+                    </div>
+                    <div class="info__row__data">
+                        <div class="info__row__title">Дата оплаты:</div>
+                        <div class="info__row__content" id="shortDate">...</div>
+                    </div>
+                </div>
+                <div class="info__row">
+                    <div class="info__row__icon">
+                        <img src="./img/user-svg.svg"/>
+                    </div>
+                    <div class="info__row__data">
+                        <div class="info__row__title">Плательщик:</div>
+                        <div class="info__row__content" id="fullPayerName">...</div>
+                    </div>
+                </div>
+                <div class="info__row">
+                    <div class="info__row__icon">
+                        <img src="./img/bill-svg.svg"/>
+                    </div>
+                    <div class="info__row__data">
+                        <div class="info__row__title">Номер транзакции:</div>
+                        <div class="info__row__content" id="transactionNumber">...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="message">
+                <div class="message__header">
+                    <div class="message__header__logo">
+                        <img src="./img/eo-logo.png">
+                    </div>
+                    <div class="message__header__extra" id="fullDate">
+                        ...
+                    </div>
+                </div>
+                <div class="message__content">
+                    <p>
+                        Уважаемый <span id="shortPayerName">...</span>,
+                        вы <span class="important">успешно</span> оплатили заказ на сумму
+                        <span class="important" id="fullAmount">...</span> в ресторане Печка.
+                    </p>
+                    <p>
+                        Информация и статус заказа будет доступен для просмотра в истории заказов.
+                    </p>
+                   <div class="centered">
+                       <a class="button centered" href="https://okno.city/delivery/restaurants/profile/orders">
+                           <img class="icon" src="./img/ok-svg.svg">
+                           Понятно
+                       </a>
+                   </div>
+                </div>
+                <div class="message__footer">
+                    <div class="text">Есть вопрос?</div>
+                    <a class="link" href="https://okno.city/support">okno.city/support</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
