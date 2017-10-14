@@ -2,7 +2,7 @@
 
 # API
 
-В URL передать параметр payment_resut формата:
+В URL передать параметр payment_result формата:
 ```
 {
    "status":{
