@@ -46,8 +46,8 @@
                  API:
                  paymentResult: {
                      "status": {
-                        "success": true,
-                        "message": ""
+                        "success": false,
+                        "message": "123"
                      },
                      "receiver": "Печка",
                      "amount": "754",
@@ -60,11 +60,6 @@
                      "transactionNumber": 901290331245
                  }
                  */
-
-                console.log((
-                    paymentResult
-                ));
-
 
                 document.getElementById('fullPayerName').innerHTML = (
                     paymentResult.payer.secondName + ' ' +
@@ -81,6 +76,13 @@
                 document.getElementById('shortDate').innerText = moment.utc(paymentResult.date).format('DD.MM.YYYY');
                 document.getElementById('fullDate').innerText = moment.utc(paymentResult.date).format('DD.MM.YYYY, kk:mm:ss');
                 document.getElementById('transactionNumber').innerText = paymentResult.transactionNumber;
+
+                if (!paymentResult.status.success) {
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('errorMessageText').innerText = paymentResult.status.message;
+                } else {
+                    document.getElementById('successMessage').style.display = 'block';
+                }
 
             }, 500)
         </script>
@@ -144,13 +146,18 @@
                     </div>
                 </div>
                 <div class="message__content">
-                    <p>
-                        Уважаемый <span id="shortPayerName">...</span>,
-                        вы <span class="important">успешно</span> оплатили заказ на сумму
-                        <span class="important" id="fullAmount">...</span> в ресторане Печка.
-                    </p>
-                    <p>
-                        Информация и статус заказа будет доступен для просмотра в истории заказов.
+                    <div id="successMessage" style="display: none">
+                        <p>
+                            Уважаемый <span id="shortPayerName">...</span>,
+                            вы <span class="important">успешно</span> оплатили заказ на сумму
+                            <span class="important" id="fullAmount">...</span> в ресторане Печка.
+                        </p>
+                        <p>
+                            Информация и статус заказа будет доступен для просмотра в истории заказов.
+                        </p>
+                    </div>
+                    <p id="errorMessage" style="display: none">
+                        Во время оплаты произошла ошибка: <span class="important" id="errorMessageText"></span>
                     </p>
                    <div class="centered">
                        <a class="button centered" href="https://okno.city/delivery/restaurants/profile/orders">
